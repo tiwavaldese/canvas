@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+   
+    <title> cans</title>
+    <link href="style.css" rel="stylesheet"/>
+</head>
+
+<body>
+  <canvas id="canvas1" width ="500" height="500"></canvas>
+
+<script>
+let canvas1 = document.getElementById('canvas1');
+let Ctx = canvas1.getContext('2d');
+let xMax = canvas1.height;
+let yMax = canvas1.width;
+let slope = 1.2;
+let intercept = 70;
+
+
+const xArray =[50,60,70,80,90,100,110,120,130,140,150];
+const yArray = [7,8,8,9,9,9,10,11,14,14,15];
+
+Ctx.fillStyle = "red";
+for(let i = 0; i<xArray.length -1; i++ ){
+    let x = xArray[i]*400/150;
+    let y = yArray[i]*400/15;
+    Ctx.beginPath();
+    Ctx.ellipse(x,y,2,3,0,0,Math.PI*2);
+    Ctx.fill();
+}
+
+Ctx.moveTo(0, intercept);
+Ctx.lineTo(xMax, f(xMax));
+Ctx.strokeStyle = 'black';
+Ctx.stroke();
+
+function f(x){
+    return x*slope + intercept;
+}
+</script>
+
+<canvas id="canvas" width ="570" height="200"></canvas>
+<h2>Scatter Plots</h2>
+<div class="plot container plotly"></div>
+<script>
+    
+let canvas = document.getElementById('canvas');
+let ctx = canvas.getContext('3d');
+    let xArray1 = [50,60,70,80,90,100,110,120,130,140,150];
+    let yArray1= [7,8,8,9,9,9,10,11,14,14,15];
+    let data =[{
+        x: xArray1,
+        y: yArray1,
+        mode: "markers",
+        type: "scatter"
+    }];
+    
+    let layout ={
+        xaxis:{range: [40,160],title: "square meters"},
+        yaxis:{range: [5,16],title: "price in millions"},
+        title: "House Prices vs. Size"
+    };
+   Plotly.newPlot("myPlot", data, layout);
+
+</script>
+
+</body>
+</html>
