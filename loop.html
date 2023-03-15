@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    
+ 
+
+    <label for="search">Search by contact name:</label>
+    <input id="search" type="text"/>
+    <button>Search</button>
+    <p></p>
+
+    <script>
+
+        const para = document.querySelector('p');
+        const input =document.querySelector('input');
+        const btn = document.querySelector('button');
+
+        const contacts = ['Chris:2232322', 'Sarah:3453456', 'Bill:7654322', 'Mary:9998769', 'Dianne:9384975'];
+        btn.addEventListener('click', ()=>{
+            const searchName = input.value.toLowerCase();
+            input.value='';
+            input.focus();
+            para.textContent= '';
+            for(const contact of contacts){
+                const splitContact = contact.split(':');
+                if(splitContact[0].toLowerCase() === searchName) {
+                    para.textContent = `${splitContact[0]}'s number is ${splitContact[1]}.`;
+                    break;
+                }
+            }
+            if (para.textContent === ''){
+                para.textContent = 'contact not found.';
+            }
+        })
+    </script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    
+    <button id="calculate"> Calculate</button>
+    <button id="clear">Clear</button>
+
+    <script>
+
+        const results = document.querySelector('#results');
+
+        function calculate(){
+            for(let i = 1; i < 10; i++){
+                const newResult= `${i} x ${i}= ${i*i}`;
+                results.textContent += `${newResult}\n` 
+            }
+            results.textContent += '\nfinished!';
+        }
+        const calculateBtn = document.querySelector('#calculate');
+        const clearBtn = document.querySelector('#clear');
+
+        calculateBtn.addEventListener('click', calculate);
+        clearBtn.addEventListener('click', ()=> results.textContent='');
+
+    </script>
+
+</body>
+</html>
