@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    
+    <button id="calculate"> Calculate</button>
+    <button id="clear">Clear</button>
+
+    <script>
+
+        const results = document.querySelector('#results');
+
+        function calculate(){
+            for(let i = 1; i < 10; i++){
+                const newResult= `${i} x ${i}= ${i*i}`;
+                results.textContent += `${newResult}\n` 
+            }
+            results.textContent += '\nfinished!';
+        }
+        const calculateBtn = document.querySelector('#calculate');
+        const clearBtn = document.querySelector('#clear');
+
+        calculateBtn.addEventListener('click', calculate);
+        clearBtn.addEventListener('click', ()=> results.textContent='');
+
+    </script>
+
+<canvas id="canvas" width ="570" height="200"></canvas>
+<h2>Scatter Plots</h2>
+<div class="plot container plotly"></div>
+<script>
+    
+let canvas = document.getElementById('canvas');
+let ctx = canvas.getContext('3d');
+    let xArray1 = [50,60,70,80,90,100,110,120,130,140,150];
+    let yArray1= [7,8,8,9,9,9,10,11,14,14,15];
+    let data =[{
+        x: xArray1,
+        y: yArray1,
+        mode: "markers",
+        type: "scatter"
+    }];
+    
+    let layout ={
+        xaxis:{range: [40,160],title: "square meters"},
+        yaxis:{range: [5,16],title: "price in millions"},
+        title: "House Prices vs. Size"
+    };
+   Plotly.newPlot("myPlot", data, layout);
+
+</script>
+
+
+
+<canvas id="glcanvas" width="600" height="460">
+    Oh no! Your browser doesn't support canvas!
+  </canvas>
+
+  <script>
+
+let gl = null;
+let glCanvas= null;
+
+let aspectRatio;
+let currentRotation = [0,1];
+let currentScale= [1.0,1.0];
+
+let vertexArray;
+let vertexBuffer;
+let vertexNumComponents;
+let vertexCount;
+
+let uScalingFactor;
+let uGlobalColor;
+let uRotationVector;
+let aVertexPosition;
+
+let shaderProgram;
+let currentAngle;
+let previousTime = 0.0;
+let degreePerSecond = 90.0;
+
+
+window.addEventListener("load",startup,false);
+
+
+function startup() {
+  glCanvas = document.getElementById("glcanvas");
+  gl = glCanvas.getContext("webgl");
+
+
+    const shaderSet =[
+        {
+            type: gl.VERTEX_SHADER,
+            id:"vertex-shader",
+        },
+        {
+            type:gl.FRAGMENT_SHADER,
+            id:"fragment_shader",
+        },
+    ];
+    shaderProgram = buildShaderProgram(shaderSet);
+
+    aspectRatio = glCanvas.width / glCanvas.height;
+    currentRotation = [0,1];
+    currentScale = [1.0, aspectRatio];
+
+    vertexArray = new Float32Array([
+    -0.5,0.5, 0.5,0.5,0.5,-0.5,-0.5,0.5,0.5,-0.5,-0.5,-0.5,
+    ]);
+
+    vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER,vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertexArray,gl.STATIC_DRAW);
+
+    vertexNumComponents = 2;
+    vertexCount = vertexArray.length / vertexNumComponents;
+
+    currentAngle = 0.0;
+
+   animateScene();
+}
+
+function buildShaderProgram(shaderInfo) {
+  const program = gl.createProgram();
+
+  shaderInfo.forEach((desc) => {
+    const shader = compileShader(desc.id, desc.type);
+
+    if (shader) {
+      gl.attachShader(program, shader);
+    }
+  });
+
+  gl.linkProgram(program);
+
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    console.log("Error linking shader program:");
+    console.log(gl.getProgramInfoLog(program));
+  }
+
+  return program;
+}
+
+
+function compileShader(id, type) {
+  const code = document.getElementById(id).firstChild.nodeValue;
+  const shader = gl.createShader(type);
+
+  gl.shaderSource(shader, code);
+  gl.compileShader(shader);
+
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    console.log(
+      `Error compiling ${
+        type === gl.VERTEX_SHADER ? "vertex" : "fragment"
+      } shader:`
+    );
+    console.log(gl.getShaderInfoLog(shader));
+  }
+  return shader;
+}
+
+
+function animateScene() {
+  gl.viewport(0, 0, glCanvas.width, glCanvas.height);
+  gl.clearColor(0.8, 0.9, 1.0, 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
+  const radians = (currentAngle * Math.PI) / 180.0;
+  currentRotation[0] = Math.sin(radians);
+  currentRotation[1] = Math.cos(radians);
+
+  gl.useProgram(shaderProgram);
+
+  uScalingFactor = gl.getUniformLocation(shaderProgram, "uScalingFactor");
+  uGlobalColor = gl.getUniformLocation(shaderProgram, "uGlobalColor");
+  uRotationVector = gl.getUniformLocation(shaderProgram, "uRotationVector");
+
+  gl.uniform2fv(uScalingFactor, currentScale);
+  gl.uniform2fv(uRotationVector, currentRotation);
+  gl.uniform4fv(uGlobalColor, [0.1, 0.7, 0.2, 1.0]);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+
+  aVertexPosition = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+
+  gl.enableVertexAttribArray(aVertexPosition);
+  gl.vertexAttribPointer(
+    aVertexPosition,
+    vertexNumComponents,
+    gl.FLOAT,
+    false,
+    0,
+    0
+  );
+
+  gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
+
+  requestAnimationFrame((currentTime) => {
+    const deltaAngle =
+      ((currentTime - previousTime) / 1000.0) * degreesPerSecond;
+
+    currentAngle = (currentAngle + deltaAngle) % 360;
+
+    previousTime = currentTime;
+    animateScene();
+  });
+}
+
+  </script>
+
+
+</body>
+</html>
